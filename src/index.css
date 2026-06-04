@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Geologica:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  /* Дизайн-система Гектар */
+  --color-brand: var(--gk-green);
+  --color-brand-hover: var(--gk-green-deep);
+  --color-page-bg: var(--gk-paper);
+  --color-surface: var(--gk-cream);
+  --color-text-main: var(--gk-ink);
+  --color-text-muted: var(--gk-fg-muted);
+  --color-buy: var(--gk-green);
+  --color-sell: var(--gk-graphite);
+  --color-ink: var(--gk-ink);
+  --color-graphite: var(--gk-graphite);
+  --color-cream: var(--gk-cream);
+  --color-green: var(--gk-green);
+  --color-green-light: var(--gk-green-light);
+  --color-green-soft: var(--gk-green-soft);
+  --color-green-deep: var(--gk-green-deep);
+  --font-display: var(--gk-font-display);
+  --font-mono: var(--gk-font-mono);
+}
+
+:root {
+  /* ── Гектар: цветовые токены ── */
+  --gk-ink:         #0E1A14;
+  --gk-graphite:    #3A4A3F;
+  --gk-cream:       #F9F8F3;
+  --gk-paper:       #FDFCF7;
+
+  --gk-green:       #3F8F4E;
+  --gk-green-light: #7CC46A;
+  --gk-green-soft:  #D6E8C9;
+  --gk-green-deep:  #1F5A2A;
+
+  --gk-fg:          var(--gk-ink);
+  --gk-fg-muted:    #6a6258;
+  --gk-bg:          var(--gk-paper);
+  --gk-surface:     var(--gk-cream);
+  --gk-border:      rgba(14, 26, 20, 0.10);
+  --gk-border-strong: rgba(14, 26, 20, 0.20);
+
+  /* ── Гектар: типографика ── */
+  --gk-font-display: 'Geologica', system-ui, sans-serif;
+  --gk-font-body:    'Geologica', system-ui, sans-serif;
+  --gk-font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* ── Гектар: радиусы ── */
+  --gk-radius-sm: 6px;
+  --gk-radius:    10px;
+  --gk-radius-lg: 16px;
+  --gk-radius-xl: 24px;
+
+  /* ── Гектар: тени ── */
+  --gk-shadow-sm: 0 1px 2px rgba(14,26,20,.06), 0 0 0 1px var(--gk-border);
+  --gk-shadow:    0 8px 24px rgba(14,26,20,.10), 0 0 0 1px var(--gk-border);
+  --gk-shadow-lg: 0 18px 40px rgba(14,26,20,.14);
+
+  /* ── Tailwind semantic mapping ── */
+  --radius: var(--gk-radius);
+  --background: var(--gk-paper);
+  --foreground: var(--gk-ink);
+  --card: var(--gk-cream);
+  --card-foreground: var(--gk-ink);
+  --popover: var(--gk-paper);
+  --popover-foreground: var(--gk-ink);
+  --primary: var(--gk-ink);
+  --primary-foreground: var(--gk-cream);
+  --secondary: var(--gk-cream);
+  --secondary-foreground: var(--gk-ink);
+  --muted: var(--gk-green-soft);
+  --muted-foreground: var(--gk-fg-muted);
+  --accent: var(--gk-cream);
+  --accent-foreground: var(--gk-ink);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: var(--gk-cream);
+  --border: var(--gk-border);
+  --input: var(--gk-border);
+  --ring: var(--gk-green);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: var(--gk-font-body);
+  color: var(--gk-ink);
+  background: var(--gk-paper);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@keyframes caret-blink {
+  0%, 70%, 100% {
+    opacity: 1;
+  }
+  20%, 50% {
+    opacity: 0;
+  }
+}
+
+.animate-caret-blink {
+  animation: caret-blink 1.2s ease-out infinite;
+}
