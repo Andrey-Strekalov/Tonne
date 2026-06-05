@@ -64,6 +64,9 @@
   --gk-border:      rgba(14, 26, 20, 0.10);
   --gk-border-strong: rgba(14, 26, 20, 0.20);
 
+  --gk-danger:      #b03a2e;
+  --gk-danger-soft: #f4d8d3;
+
   /* ── Гектар: типографика ── */
   --gk-font-display: 'Geologica', system-ui, sans-serif;
   --gk-font-body:    'Geologica', system-ui, sans-serif;

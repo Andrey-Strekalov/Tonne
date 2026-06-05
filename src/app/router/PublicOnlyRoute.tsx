@@ -13,7 +13,9 @@ export function PublicOnlyRoute() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />
+    const dest = sessionStorage.getItem('post_login_redirect') ?? '/'
+    sessionStorage.removeItem('post_login_redirect')
+    return <Navigate to={dest} replace />
   }
 
   return <Outlet />
