@@ -248,7 +248,7 @@ function OtpCells({ hasError }: { hasError: boolean }) {
         <div
           key={i}
           className={cn(
-            'relative grid h-[72px] place-items-center rounded-[var(--gk-radius)] border border-[var(--gk-border-strong)] bg-white transition-all',
+            'relative grid h-[72px] place-items-center rounded-[var(--gk-radius)] border border-[var(--gk-border-strong)] bg-[var(--gk-paper)] transition-all',
             'font-mono text-[28px] font-bold text-[var(--gk-ink)]',
             slot.char && !hasError && 'border-[var(--gk-green)] bg-[var(--gk-green-soft)] text-[var(--gk-green-deep)]',
             slot.isActive && !hasError && 'border-[var(--gk-green)] bg-[var(--gk-paper)] shadow-[0_0_0_2px_rgba(63,143,78,.22)]',
