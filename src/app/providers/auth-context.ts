@@ -5,7 +5,7 @@ export type AuthContextValue = {
   isAuthenticated: boolean
   isLoading: boolean
   user: TUser | null
-  login: (accessToken: string, refreshToken: string) => Promise<void>
+  login: (accessToken: string, refreshToken: string) => Promise<TUser>
   logout: () => void
 }
 

@@ -54,10 +54,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setLoading] = useState(true)
   const [user, setUser] = useState<TUser | null>(null)
 
-  const syncSession = useCallback(async () => {
+  const syncSession = useCallback(async (): Promise<TUser> => {
     const nextUser = await requestCurrentUser()
     setUser(nextUser)
     setAuthenticated(true)
+    return nextUser
   }, [])
 
   useEffect(() => {
@@ -95,11 +96,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [syncSession])
 
-  const login = useCallback(async (accessToken: string, refreshToken: string) => {
+  const login = useCallback(async (accessToken: string, refreshToken: string): Promise<TUser> => {
     saveTokens(accessToken, refreshToken)
 
     try {
-      await syncSession()
+      return await syncSession()
     } catch (error) {
       removeTokens()
       setAuthenticated(false)
