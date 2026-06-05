@@ -1,4 +1,3 @@
-// Общие типы
 export type {
   AuthMeResponse,
   TUser,
@@ -18,3 +17,15 @@ export type {
   TGetBidsResponse,
   TCreateBidResponse,
 } from './bid'
+export type { TRole, TProfile, TProfileResponse, TUpdateProfileRequest } from './profile'
+export type { TRequisites, TRequisitesResponse } from './requisites'
+export type {
+  TContactRequest,
+  TContactRequestsResponse,
+  TContactRequestResponse,
+} from './contact'
+export type {
+  TNotification,
+  TNotificationPayload,
+  TNotificationsResponse,
+} from './notification'

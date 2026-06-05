@@ -14,7 +14,8 @@ export interface TBid {
   volume: string
   region: string
   comment: string
-  published_at: string
+  is_archived: boolean
+  published_at: string | null
   author: TUser
 }
 

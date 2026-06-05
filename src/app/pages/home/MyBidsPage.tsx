@@ -70,7 +70,7 @@ export function MyBidsPage() {
           </div>
         )}
         {!isLoading && !isError && filtered.map((bid) => (
-          <BidCard key={bid.id} bid={bid} />
+          <BidCard key={bid.id} bid={bid} isMine alreadySent={false} onContact={() => { /* no-op: own bids */ }} />
         ))}
       </section>
     </MainLayout>
