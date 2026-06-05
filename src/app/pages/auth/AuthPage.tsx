@@ -77,10 +77,10 @@ type LPData = {
 const LP_PHONE: LPData = {
   headline: (
     <>
-      Площадка для&nbsp;<em>зерна и кормов</em>: напрямую между производителем и покупателем
+      Торговля зерном без&nbsp;<em>посредников</em>
     </>
   ),
-  caption: 'Без посредников и наценок. Подтверждённые контрагенты, прозрачные условия поставки.',
+  caption: 'B2B-маркетплейс сельхозпродукции. Верифицированные участники, реальные заявки.',
   stat: { value: '2 480', label: 'активных заявок' },
 }
 
@@ -159,12 +159,12 @@ function LeftPanel({ headline, caption, stat }: LPData) {
 
       <div className="relative z-10 mt-auto flex flex-col gap-3.5">
         <div
-          className="font-display text-[22px] font-bold leading-[1.18] tracking-[-0.025em] text-[#F5F1E6] [text-wrap:pretty] [&_em]:not-italic [&_em]:text-[#7CC46A]"
+          className="font-display text-[30px] font-bold leading-[1.18] tracking-[-0.025em] text-[#F5F1E6] [text-wrap:pretty] [&_em]:not-italic [&_em]:text-[#7CC46A]"
           style={{ maxWidth: 260 }}
         >
           {headline}
         </div>
-        <div className="text-[12.5px] leading-[1.55] text-[rgba(245,241,230,.58)]" style={{ maxWidth: 260 }}>
+        <div className="text-[15px] leading-[1.55] text-[rgba(245,241,230,.58)]" style={{ maxWidth: 260 }}>
           {caption}
         </div>
         {!stat.hidden && (

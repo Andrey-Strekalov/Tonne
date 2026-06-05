@@ -29,6 +29,7 @@
   --color-brand: var(--gk-green);
   --color-brand-hover: var(--gk-green-deep);
   --color-page-bg: var(--gk-paper);
+  --color-paper: var(--gk-paper);
   --color-surface: var(--gk-cream);
   --color-text-main: var(--gk-ink);
   --color-text-muted: var(--gk-fg-muted);
