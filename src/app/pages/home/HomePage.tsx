@@ -11,7 +11,7 @@ import { SendContactModal } from './SendContactModal'
 
 /* ── types ────────────────────────────────────────────────────── */
 type BidFilter = EBidType | 'all'
-type SortKey = 'newest' | 'price_asc' | 'price_desc' | 'qty_desc'
+type SortKey = 'newest' | 'price_asc' | 'price_desc' | 'qty_asc' | 'qty_desc'
 
 interface Filters {
   type: BidFilter
@@ -37,7 +37,8 @@ const SORT_OPTIONS: { id: SortKey; label: string }[] = [
   { id: 'newest',     label: 'Сначала новые' },
   { id: 'price_asc',  label: 'По цене ↑' },
   { id: 'price_desc', label: 'По цене ↓' },
-  { id: 'qty_desc',   label: 'По объёму' },
+  { id: 'qty_asc',    label: 'По объёму ↑' },
+  { id: 'qty_desc',   label: 'По объёму ↓' },
 ]
 
 const PER_PAGE = 6
@@ -92,30 +93,67 @@ const SlidersIcon = () => (
 )
 
 /* ── FilterPanel ───────────────────────────────────────────────── */
+const ChevUpIcon = () => (
+  <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="2 7 5 3 8 7"/>
+  </svg>
+)
+const ChevDownIcon = () => (
+  <svg width="7" height="7" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="2 3 5 7 8 3"/>
+  </svg>
+)
+
 function RangeField({
-  label, value, onChange, placeholder, suffix, error,
+  label, value, onChange, placeholder, suffix, error, step = 1,
 }: {
   label: string; value: string; onChange: (v: string) => void
-  placeholder: string; suffix: string; error: boolean
+  placeholder: string; suffix: string; error: boolean; step?: number
 }) {
+  const inc = () => { onChange(String(Math.max(0, parseInt(value || '0', 10) + step))) }
+  const dec = () => {
+    const next = Math.max(0, parseInt(value || '0', 10) - step)
+    onChange(next === 0 ? '' : String(next))
+  }
+
   return (
     <div>
       <span className="mb-1 block text-[11px] uppercase tracking-[.06em] text-[var(--gk-fg-muted)]">{label}</span>
-      <div className="relative">
+      <div
+        className={cn(
+          'flex overflow-hidden rounded-[var(--gk-radius-sm)] border bg-paper transition-colors focus-within:border-green',
+          error ? 'border-[var(--gk-danger)]' : 'border-[var(--gk-border-strong)]',
+        )}
+      >
         <input
           type="text"
           inputMode="numeric"
-          className={cn(
-            "w-full rounded-[var(--gk-radius-sm)] border bg-paper py-2 pl-3 pr-9 font-['JetBrains_Mono',ui-monospace,monospace] text-sm text-ink placeholder:text-[var(--gk-fg-muted)] focus:border-green focus:outline-none",
-            error ? 'border-red-500' : 'border-[var(--gk-border-strong)]',
-          )}
+          className="min-w-0 flex-1 bg-transparent py-2 pl-3 font-['JetBrains_Mono',ui-monospace,monospace] text-sm text-ink placeholder:text-[var(--gk-fg-muted)] focus:outline-none"
           placeholder={placeholder}
           value={value}
           onChange={(e) => { onChange(e.target.value.replace(/\D/g, '')) }}
         />
-        <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 font-['JetBrains_Mono',ui-monospace,monospace] text-[11px] text-[var(--gk-fg-muted)]">
+        <div className="flex flex-col border-l border-[var(--gk-border)]">
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={inc}
+            className="flex flex-1 w-5 items-center justify-center text-[var(--gk-fg-muted)] hover:bg-[rgba(14,26,20,.07)] hover:text-ink"
+          >
+            <ChevUpIcon />
+          </button>
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={dec}
+            className="flex flex-1 w-5 items-center justify-center border-t border-[var(--gk-border)] text-[var(--gk-fg-muted)] hover:bg-[rgba(14,26,20,.07)] hover:text-ink"
+          >
+            <ChevDownIcon />
+          </button>
+        </div>
+        <div className="flex items-center border-l border-[var(--gk-border)] px-1.5 font-['JetBrains_Mono',ui-monospace,monospace] text-[11px] text-[var(--gk-fg-muted)]">
           {suffix}
-        </span>
+        </div>
       </div>
     </div>
   )
@@ -211,19 +249,19 @@ function FilterPanel({
       {/* Price */}
       <FilterCard title="Цена, ₽/т">
         <div className="grid grid-cols-2 gap-2">
-          <RangeField label="От" value={filters.priceMin} onChange={set('priceMin')} placeholder="0" suffix="₽/т" error={priceErr} />
-          <RangeField label="До" value={filters.priceMax} onChange={set('priceMax')} placeholder="∞" suffix="₽/т" error={priceErr} />
+          <RangeField label="От" value={filters.priceMin} onChange={set('priceMin')} placeholder="0" suffix="₽/т" error={priceErr} step={1000} />
+          <RangeField label="До" value={filters.priceMax} onChange={set('priceMax')} placeholder="∞" suffix="₽/т" error={priceErr} step={1000} />
         </div>
-        {priceErr && <p className="mt-1.5 text-[12px] text-red-600">«От» должно быть меньше «до»</p>}
+        {priceErr && <p className="mt-1.5 text-[12px] text-[var(--gk-danger)]">«От» должно быть меньше «до»</p>}
       </FilterCard>
 
       {/* Volume */}
       <FilterCard title="Объём, т">
         <div className="grid grid-cols-2 gap-2">
-          <RangeField label="От" value={filters.qtyMin} onChange={set('qtyMin')} placeholder="0" suffix="т" error={qtyErr} />
-          <RangeField label="До" value={filters.qtyMax} onChange={set('qtyMax')} placeholder="∞" suffix="т" error={qtyErr} />
+          <RangeField label="От" value={filters.qtyMin} onChange={set('qtyMin')} placeholder="0" suffix="т" error={qtyErr} step={10} />
+          <RangeField label="До" value={filters.qtyMax} onChange={set('qtyMax')} placeholder="∞" suffix="т" error={qtyErr} step={10} />
         </div>
-        {qtyErr && <p className="mt-1.5 text-[12px] text-red-600">«От» должно быть меньше «до»</p>}
+        {qtyErr && <p className="mt-1.5 text-[12px] text-[var(--gk-danger)]">«От» должно быть меньше «до»</p>}
       </FilterCard>
 
       <button
@@ -278,7 +316,7 @@ function SortDropdown({ value, onChange }: { value: SortKey; onChange: (v: SortK
         <ChevIcon />
       </button>
       {open && (
-        <div className="absolute right-0 top-[calc(100%+6px)] z-20 min-w-[220px] rounded-[var(--gk-radius)] border border-[var(--gk-border-strong)] bg-paper p-1.5 [box-shadow:var(--gk-shadow-md)]">
+        <div className="absolute right-0 top-[calc(100%+6px)] z-[100] min-w-[220px] rounded-[var(--gk-radius)] border border-[var(--gk-border-strong)] bg-paper p-1.5 [box-shadow:var(--gk-shadow)]">
           {SORT_OPTIONS.map((o) => (
             <button
               key={o.id}
@@ -396,7 +434,7 @@ function PagBtn({
         'flex h-9 min-w-[36px] items-center justify-center rounded-[var(--gk-radius-sm)] border px-2.5 text-[13px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-35',
         active
           ? 'border-ink bg-ink font-semibold text-cream'
-          : 'border-[var(--gk-border)] bg-transparent text-[var(--gk-fg-muted)] hover:border-[var(--gk-border-strong)] hover:bg-[rgba(14,26,20,.04)] hover:text-ink',
+          : 'border-[var(--gk-border)] bg-transparent text-[var(--gk-graphite)] hover:border-[var(--gk-border-strong)] hover:bg-[rgba(14,26,20,.04)] hover:text-ink',
       )}
     >
       {children}
@@ -527,8 +565,10 @@ export function HomePage() {
       list = [...list].sort((a, b) => parseNum(a.price) - parseNum(b.price))
     } else if (sort === 'price_desc') {
       list = [...list].sort((a, b) => parseNum(b.price) - parseNum(a.price))
+    } else if (sort === 'qty_asc') {
+      list = [...list].sort((a, b) => parseNum(a.volume) - parseNum(b.volume))
     } else {
-      // sort === 'qty_desc'
+      // qty_desc
       list = [...list].sort((a, b) => parseNum(b.volume) - parseNum(a.volume))
     }
 
@@ -557,8 +597,8 @@ export function HomePage() {
     <MainLayout>
       <div className="flex items-start gap-7">
         {/* Sidebar */}
-        <aside className="w-[272px] shrink-0">
-          <div className="sticky top-20">
+        <aside className="w-[304px] shrink-0">
+          <div className="sticky top-[88px]">
             <FilterPanel
               filters={filters}
               onFiltersChange={handleFiltersChange}

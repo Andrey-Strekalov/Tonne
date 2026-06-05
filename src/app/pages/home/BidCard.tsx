@@ -35,7 +35,7 @@ function getInitials(name: string): string {
   return (w0?.[0] ?? '?').toUpperCase()
 }
 
-function fmtPrice(s: string): string {
+function fmtNum(s: string): string {
   const n = parseFloat(s.replace(',', '.').replace(/\s/g, ''))
   return isNaN(n) ? s : n.toLocaleString('ru-RU')
 }
@@ -51,7 +51,7 @@ function fmtPublished(s: string | null): string {
 
 export function BidCard({ bid, isMine, alreadySent, onContact }: TBidCardProps) {
   const initials = getInitials(bid.author.name)
-  const priceDisplay = fmtPrice(bid.price)
+  const priceDisplay = fmtNum(bid.price)
   const dateStr = fmtPublished(bid.published_at)
   const bidCode = `TN-${bid.id}`
   const isSell = bid.type === EBidType.Sell
@@ -92,9 +92,9 @@ export function BidCard({ bid, isMine, alreadySent, onContact }: TBidCardProps) 
           {priceDisplay} ₽
         </p>
         <p className="text-[11px] text-[var(--gk-fg-muted)]">за тонну</p>
-        <p className="mt-2 font-['JetBrains_Mono',ui-monospace,monospace] text-[14px] text-[var(--gk-fg-muted)]">
-          <span className="mr-1 font-sans text-[12px] font-normal">Объём</span>
-          <span className="text-ink">{bid.volume} т</span>
+        <p className="mt-2 font-['JetBrains_Mono',ui-monospace,monospace] text-[14px] text-[var(--gk-graphite)]">
+          <span className="mr-1 font-sans text-[12px] font-normal text-[var(--gk-fg-muted)]">Объём</span>
+          {fmtNum(bid.volume)} т
         </p>
       </div>
 
