@@ -61,10 +61,10 @@ export function EditProfileModal({ profile, requisites, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-[var(--gk-ink)]/50 px-4 py-6 backdrop-blur-sm sm:items-center sm:px-6"
+      className="fixed inset-0 z-[200] flex items-start justify-center overflow-y-auto bg-[rgba(14,26,20,.5)] px-4 py-6 backdrop-blur-[3px] sm:items-center sm:px-6"
       onMouseDown={(e) => { if (e.target === e.currentTarget) {onClose()} }}
     >
-      <div className="w-full max-w-[600px] rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-paper [box-shadow:var(--gk-shadow-lg)]">
+      <div className="w-full max-w-[600px] rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-[var(--gk-paper)] [box-shadow:var(--gk-shadow-lg)]">
         <div className="flex items-start justify-between gap-3 px-7 pt-6 pb-2">
           <div>
             <h2 className="text-[22px] font-bold tracking-tight text-ink">Редактировать профиль</h2>
@@ -129,11 +129,11 @@ export function EditProfileModal({ profile, requisites, onClose }: Props) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="ep-inn" className="text-ink">ИНН</Label>
-                  <Input id="ep-inn" value={req.inn} onChange={handleReqChange('inn')} placeholder="10 или 12 цифр" />
+                  <Input id="ep-inn" value={req.inn} onChange={handleReqChange('inn')} placeholder="10 или 12 цифр" className="font-['JetBrains_Mono',ui-monospace,monospace]" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ep-ogrn" className="text-ink">ОГРН</Label>
-                  <Input id="ep-ogrn" value={req.ogrn} onChange={handleReqChange('ogrn')} placeholder="13 или 15 цифр" />
+                  <Input id="ep-ogrn" value={req.ogrn} onChange={handleReqChange('ogrn')} placeholder="13 или 15 цифр" className="font-['JetBrains_Mono',ui-monospace,monospace]" />
                 </div>
               </div>
             </fieldset>
@@ -144,7 +144,7 @@ export function EditProfileModal({ profile, requisites, onClose }: Props) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="ep-bik" className="text-ink">БИК</Label>
-                  <Input id="ep-bik" value={req.bik} onChange={handleReqChange('bik')} placeholder="9 цифр" />
+                  <Input id="ep-bik" value={req.bik} onChange={handleReqChange('bik')} placeholder="9 цифр" className="font-['JetBrains_Mono',ui-monospace,monospace]" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ep-bank" className="text-ink">Наименование банка</Label>
@@ -152,11 +152,11 @@ export function EditProfileModal({ profile, requisites, onClose }: Props) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ep-rs" className="text-ink">Расчётный счёт</Label>
-                  <Input id="ep-rs" value={req.checking_account} onChange={handleReqChange('checking_account')} placeholder="20 цифр" />
+                  <Input id="ep-rs" value={req.checking_account} onChange={handleReqChange('checking_account')} placeholder="20 цифр" className="font-['JetBrains_Mono',ui-monospace,monospace]" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="ep-ks" className="text-ink">Корреспондентский счёт</Label>
-                  <Input id="ep-ks" value={req.correspondent_account} onChange={handleReqChange('correspondent_account')} placeholder="20 цифр" />
+                  <Input id="ep-ks" value={req.correspondent_account} onChange={handleReqChange('correspondent_account')} placeholder="20 цифр" className="font-['JetBrains_Mono',ui-monospace,monospace]" />
                 </div>
               </div>
             </fieldset>
@@ -180,7 +180,7 @@ export function EditProfileModal({ profile, requisites, onClose }: Props) {
               </div>
             </fieldset>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-[var(--gk-danger)]">{error}</p>}
           </div>
 
           <div className="flex justify-end gap-2 border-t border-[var(--gk-border)] px-7 py-4">
