@@ -1,11 +1,13 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { getProfile } from '@/shared/api/profile'
+import { useRef, useState, type ChangeEvent } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { getProfile, uploadAvatar, deleteProfile } from '@/shared/api/profile'
 import { getRequisites } from '@/shared/api/requisites'
 import { useAuth } from '@/app/providers/auth-context'
 import { Button } from '@/shared/ui/kit'
 import { EditProfileModal } from '../components/EditProfileModal'
 import { getDisplayName, getInitials, getRoleLabel, formatJoinedDate } from '../profile-utils'
+import ReactCrop, { type Crop, type PixelCrop } from 'react-image-crop'
+import 'react-image-crop/dist/ReactCrop.css'
 
 const PencilIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -22,6 +24,17 @@ const ChevronIcon = ({ open }: { open: boolean }) => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
     style={{ transform: open ? 'rotate(0deg)' : 'rotate(-90deg)', transition: 'transform .18s' }}>
     <polyline points="6 9 12 15 18 9"/>
+  </svg>
+)
+const CameraIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+    <circle cx="12" cy="13" r="4"/>
+  </svg>
+)
+const XIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 )
 
@@ -51,7 +64,7 @@ function CopyField({ value, mono = false }: { value: string; mono?: boolean }) {
 }
 
 function ReqField({ label, value, mono = false, fullWidth = false }: { label: string; value: string; mono?: boolean; fullWidth?: boolean }) {
-  if (!value) {return null}
+  if (!value) { return null }
   return (
     <div className={fullWidth ? 'col-span-2' : ''}>
       <p className="mb-1 text-xs text-[var(--gk-fg-muted)]">{label}</p>
@@ -62,8 +75,12 @@ function ReqField({ label, value, mono = false, fullWidth = false }: { label: st
 
 export function ProfileSection() {
   const { logout } = useAuth()
+  const queryClient = useQueryClient()
   const [reqOpen, setReqOpen] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
+  const [deleteAccountOpen, setDeleteAccountOpen] = useState(false)
+  const [imgSrc, setImgSrc] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ['profile'],
@@ -74,6 +91,28 @@ export function ProfileSection() {
     queryFn: getRequisites,
   })
 
+  const uploadMut = useMutation({
+    mutationFn: uploadAvatar,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['profile'] })
+      setImgSrc(null)
+    },
+  })
+
+  const deleteAccountMut = useMutation({
+    mutationFn: deleteProfile,
+    onSuccess: () => { logout() },
+  })
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) { return }
+    const reader = new FileReader()
+    reader.onload = () => { setImgSrc(reader.result as string) }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
   if (profileLoading || reqLoading) {
     return <p className="text-sm text-[var(--gk-fg-muted)]">Загружаем профиль...</p>
   }
@@ -82,7 +121,7 @@ export function ProfileSection() {
   const req = reqData?.requisites
 
   if (!profile || !req) {
-    return <p className="text-sm text-red-600">Не удалось загрузить профиль.</p>
+    return <p className="text-sm text-[var(--gk-danger)]">Не удалось загрузить профиль.</p>
   }
 
   const displayName = getDisplayName(req.company_name)
@@ -100,9 +139,23 @@ export function ProfileSection() {
         <div className="rounded-[var(--gk-radius-lg)] border border-[var(--gk-border)] bg-cream">
           <div className="grid grid-cols-[auto_1fr_auto] gap-7 p-6 sm:p-7">
             {/* Avatar */}
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[var(--gk-radius-lg)] border border-[var(--gk-border-strong)] bg-green-deep text-[28px] font-bold tracking-tight text-cream">
-              {initials}
-            </div>
+            <button
+              type="button"
+              className="relative h-24 w-24 shrink-0 cursor-pointer overflow-hidden rounded-[var(--gk-radius-lg)] border border-[var(--gk-border-strong)] bg-green-deep"
+              onClick={() => { fileRef.current?.click() }}
+              title="Сменить фото"
+            >
+              {profile.company_logo ? (
+                <img src={profile.company_logo} alt={displayName} className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-[28px] font-bold tracking-tight text-cream">
+                  {initials}
+                </span>
+              )}
+              <span className="absolute inset-x-0 bottom-0 flex h-7 items-center justify-center gap-1 bg-[rgba(14,26,20,.6)] text-[11px] font-medium text-cream opacity-0 transition-opacity hover:opacity-100 [.group:hover_&]:opacity-100">
+                <CameraIcon /> Сменить
+              </span>
+            </button>
 
             {/* Info */}
             <div className="min-w-0 space-y-3.5">
@@ -137,6 +190,13 @@ export function ProfileSection() {
               <Button variant="ghost" size="sm" onClick={logout}>
                 <LogoutIcon /> Выйти
               </Button>
+              <button
+                type="button"
+                className="mt-1.5 rounded-[var(--gk-radius-sm)] px-2 py-2 text-center text-[13px] text-[var(--gk-fg-muted)] transition-colors hover:text-[var(--gk-danger)]"
+                onClick={() => { setDeleteAccountOpen(true) }}
+              >
+                <u className="decoration-[1px] underline-offset-[3px]">Удалить аккаунт</u>
+              </button>
             </div>
           </div>
         </div>
@@ -187,6 +247,15 @@ export function ProfileSection() {
         </div>
       </div>
 
+      {/* Hidden file input */}
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
       {editOpen && (
         <EditProfileModal
           profile={profile}
@@ -194,7 +263,134 @@ export function ProfileSection() {
           onClose={() => { setEditOpen(false) }}
         />
       )}
+
+      {imgSrc !== null && (
+        <AvatarCropModal
+          imgSrc={imgSrc}
+          isPending={uploadMut.isPending}
+          onClose={() => { setImgSrc(null) }}
+          onSave={(file) => { uploadMut.mutate(file) }}
+        />
+      )}
+
+      {deleteAccountOpen && (
+        <DeleteAccountModal
+          isPending={deleteAccountMut.isPending}
+          onClose={() => { setDeleteAccountOpen(false) }}
+          onConfirm={() => { deleteAccountMut.mutate() }}
+        />
+      )}
     </>
+  )
+}
+
+function AvatarCropModal({ imgSrc, isPending, onClose, onSave }: {
+  imgSrc: string
+  isPending: boolean
+  onClose: () => void
+  onSave: (file: File) => void
+}) {
+  const [crop, setCrop] = useState<Crop>({ unit: '%', width: 80, height: 80, x: 10, y: 10 })
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
+  const imgRef = useRef<HTMLImageElement>(null)
+
+  const handleSave = () => {
+    if (!completedCrop || !imgRef.current) { return }
+    const canvas = document.createElement('canvas')
+    canvas.width = 400
+    canvas.height = 400
+    const ctx = canvas.getContext('2d')
+    if (!ctx) { return }
+
+    const img = imgRef.current
+    const scaleX = img.naturalWidth / img.width
+    const scaleY = img.naturalHeight / img.height
+
+    ctx.drawImage(
+      img,
+      completedCrop.x * scaleX,
+      completedCrop.y * scaleY,
+      completedCrop.width * scaleX,
+      completedCrop.height * scaleY,
+      0, 0, 400, 400,
+    )
+
+    canvas.toBlob((blob) => {
+      if (!blob) { return }
+      onSave(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }))
+    }, 'image/jpeg', 0.92)
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[300] flex items-center justify-center px-4 bg-[rgba(14,26,20,.5)] backdrop-blur-[3px]"
+      onMouseDown={(e) => { if (e.target === e.currentTarget) { onClose() } }}
+    >
+      <div className="w-full max-w-[480px] rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-[var(--gk-paper)] [box-shadow:var(--gk-shadow-lg)]">
+        <div className="flex items-start justify-between gap-3 px-7 pt-6 pb-4">
+          <div>
+            <h2 className="text-[20px] font-bold tracking-tight text-ink">Фото профиля</h2>
+            <p className="mt-1 text-[13px] text-[var(--gk-fg-muted)]">Выберите область для отображения</p>
+          </div>
+          <button
+            type="button"
+            className="rounded-[var(--gk-radius-sm)] p-1.5 text-[var(--gk-fg-muted)] hover:bg-[rgba(14,26,20,.05)] hover:text-ink"
+            onClick={onClose}
+          >
+            <XIcon />
+          </button>
+        </div>
+        <div className="flex justify-center px-7 pb-2">
+          <ReactCrop
+            crop={crop}
+            onChange={(c) => { setCrop(c) }}
+            onComplete={(c) => { setCompletedCrop(c) }}
+            aspect={1}
+          >
+            <img ref={imgRef} src={imgSrc} alt="Кроп аватара" className="max-h-[360px] max-w-full" />
+          </ReactCrop>
+        </div>
+        <div className="flex justify-end gap-2 border-t border-[var(--gk-border)] px-7 py-4">
+          <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>Отмена</Button>
+          <Button type="button" variant="accent" onClick={handleSave} disabled={isPending || !completedCrop}>
+            {isPending ? 'Загрузка...' : 'Сохранить'}
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DeleteAccountModal({ isPending, onClose, onConfirm }: {
+  isPending: boolean
+  onClose: () => void
+  onConfirm: () => void
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-[200] flex items-center justify-center px-4 bg-[rgba(14,26,20,.5)] backdrop-blur-[3px]"
+      onMouseDown={(e) => { if (e.target === e.currentTarget) { onClose() } }}
+    >
+      <div className="w-full max-w-[400px] rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-[var(--gk-paper)] [box-shadow:var(--gk-shadow-lg)]">
+        <div className="p-7 pb-5">
+          <h2 className="text-[20px] font-bold tracking-tight text-ink">Удалить аккаунт?</h2>
+          <p className="mt-2 text-sm text-[var(--gk-fg-muted)]">
+            Все ваши данные, реквизиты и объявления будут удалены безвозвратно. Это действие нельзя отменить.
+          </p>
+        </div>
+        <div className="flex justify-end gap-2 border-t border-[var(--gk-border)] px-7 py-4">
+          <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>Отмена</Button>
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={onConfirm}
+            className="inline-flex items-center justify-center rounded-[var(--gk-radius)] bg-[var(--gk-danger)] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#8a2d24] disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            {isPending ? 'Удаление...' : 'Удалить аккаунт'}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
