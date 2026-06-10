@@ -12,3 +12,7 @@ export function updateRequisites(data: Partial<TRequisites>): Promise<TRequisite
     auth: true,
   })
 }
+
+export function getUserRequisites(userId: number): Promise<TRequisitesResponse> {
+  return request<TRequisitesResponse>(`/api/v1/profile/${userId}/requisites/`, { auth: true })
+}

@@ -7,6 +7,10 @@ export function getProfile(): Promise<TProfileResponse> {
   return request<TProfileResponse>('/api/v1/profile/', { auth: true })
 }
 
+export function getUserProfile(userId: number): Promise<TProfileResponse> {
+  return request<TProfileResponse>(`/api/v1/profile/${userId}/`, { auth: true })
+}
+
 export function updateProfile(data: TUpdateProfileRequest): Promise<TProfileResponse> {
   return request<TProfileResponse>('/api/v1/profile/', {
     method: 'PATCH',

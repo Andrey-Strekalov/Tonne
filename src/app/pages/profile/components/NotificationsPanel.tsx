@@ -5,7 +5,7 @@ import { formatDateTime } from '../profile-utils'
 
 type Props = {
   onClose: () => void
-  onGoToContacts: () => void
+  onGoToContacts: (crId?: number) => void
 }
 
 export function NotificationsPanel({ onClose, onGoToContacts }: Props) {
@@ -30,15 +30,16 @@ export function NotificationsPanel({ onClose, onGoToContacts }: Props) {
   })
 
   const handleItemClick = (n: TNotification) => {
+    const crId = n.contact_request_id ?? undefined
     if (n.is_read) {
       onClose()
-      onGoToContacts()
+      onGoToContacts(crId)
       return
     }
     markOneMutation.mutate(n.id, {
       onSuccess: () => {
         onClose()
-        onGoToContacts()
+        onGoToContacts(crId)
       },
     })
   }
@@ -86,8 +87,8 @@ export function NotificationsPanel({ onClose, onGoToContacts }: Props) {
 }
 
 function NotificationItem({ notification: n, onClick }: { notification: TNotification; onClick: () => void }) {
-  const bidTitle = n.payload?.bid_title ?? '—'
-  const senderName = n.payload?.sender_first_name ?? 'Пользователь'
+  const bidTitle = n.payload?.bid_title || '—'
+  const senderName = n.payload?.sender_first_name || 'Пользователь'
 
   return (
     <div

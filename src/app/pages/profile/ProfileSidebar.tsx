@@ -1,5 +1,5 @@
 import { useAuth } from '@/app/providers/auth-context'
-import type { ProfileSection } from './ProfilePage'
+import type { ProfileSectionId as ProfileSection } from './ProfilePage'
 
 const UserIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">

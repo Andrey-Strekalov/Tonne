@@ -169,7 +169,7 @@ export function ProfileSection() {
               <div className="flex flex-wrap gap-9">
                 <div>
                   <p className="text-[11px] font-medium uppercase tracking-[.08em] text-[var(--gk-fg-muted)]">
-                    Телефон · логин
+                    Телефон
                   </p>
                   <CopyField value={profile.phone_number} mono />
                 </div>

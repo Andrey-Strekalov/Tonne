@@ -1,6 +1,9 @@
+import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { EBidType, type TBid } from '@/shared/types'
+import { cn } from '@/shared/lib'
 
 const PinIcon = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -22,9 +25,9 @@ const CheckIcon = () => (
 
 type TBidCardProps = {
   bid: TBid
-  isMine: boolean
   alreadySent: boolean
   onContact: (bid: TBid) => void
+  hideContact?: boolean
 }
 
 function getInitials(name: string): string {
@@ -33,6 +36,11 @@ function getInitials(name: string): string {
   const w1 = words[1]
   if (w0 && w1) { return ((w0[0] ?? '') + (w1[0] ?? '')).toUpperCase() }
   return (w0?.[0] ?? '?').toUpperCase()
+}
+
+function getAuthorName(companyName: string | null | undefined, name: string, id: number): string {
+  if (companyName?.trim()) { return companyName.trim() }
+  return name.trim() || `user_${id}`
 }
 
 function fmtNum(s: string): string {
@@ -49,24 +57,31 @@ function fmtPublished(s: string | null): string {
   }
 }
 
-export function BidCard({ bid, isMine, alreadySent, onContact }: TBidCardProps) {
-  const initials = getInitials(bid.author.name)
+const COMMENT_CLAMP_THRESHOLD = 100
+
+export function BidCard({ bid, alreadySent, onContact, hideContact = false }: TBidCardProps) {
+  const [commentExpanded, setCommentExpanded] = useState(false)
+
+  const authorName = getAuthorName(bid.author.company_name, bid.author.name, bid.author.id)
+  const initials = getInitials(authorName)
   const priceDisplay = fmtNum(bid.price)
   const dateStr = fmtPublished(bid.published_at)
   const bidCode = `TN-${bid.id}`
   const isSell = bid.type === EBidType.Sell
+  const comment = bid.comment.trim()
+  const isLongComment = comment.length > COMMENT_CLAMP_THRESHOLD
 
   return (
     <div
-      className={`grid grid-cols-[1fr_auto] gap-x-7 rounded-[var(--gk-radius-lg)] border border-[var(--gk-border)] px-6 pt-[22px] pb-0 transition-colors hover:border-[var(--gk-border-strong)] ${isMine ? 'bg-paper' : 'bg-cream'}`}
+      className="grid grid-cols-[1fr_auto] gap-x-7 rounded-[var(--gk-radius-lg)] border border-[var(--gk-border)] bg-cream px-6 pt-[22px] pb-0 transition-colors hover:border-[var(--gk-border-strong)]"
     >
-      {/* Left: badge + title + quality + region */}
+      {/* Left: badge + title + quality + region + comment */}
       <div className="min-w-0 pb-4">
         <div className="mb-2.5 flex items-center gap-3">
           <span
             className={`inline-flex rounded-full px-2.5 py-[5px] text-[12px] font-semibold leading-none ${
               isSell
-                ? `text-green-deep [box-shadow:inset_0_0_0_1px_var(--gk-green)] ${isMine ? 'bg-paper' : 'bg-cream'}`
+                ? 'bg-cream text-green-deep [box-shadow:inset_0_0_0_1px_var(--gk-green)]'
                 : 'bg-green text-cream'
             }`}
           >
@@ -84,6 +99,25 @@ export function BidCard({ bid, isMine, alreadySent, onContact }: TBidCardProps) 
           <span className="text-[var(--gk-fg-muted)]"><PinIcon /></span>
           {bid.region}
         </div>
+        {comment && (
+          <div className="mt-2.5">
+            <p className={cn(
+              'text-[13px] leading-relaxed text-[var(--gk-fg-muted)]',
+              !commentExpanded && 'line-clamp-2',
+            )}>
+              {comment}
+            </p>
+            {isLongComment && (
+              <button
+                type="button"
+                onClick={() => { setCommentExpanded(!commentExpanded) }}
+                className="mt-0.5 text-[12px] font-medium text-green-deep hover:underline"
+              >
+                {commentExpanded ? 'Свернуть' : 'Ещё'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Right: price + volume */}
@@ -100,16 +134,19 @@ export function BidCard({ bid, isMine, alreadySent, onContact }: TBidCardProps) 
 
       {/* Footer: spans both cols */}
       <div className="col-span-2 flex items-center justify-between gap-4 border-t border-[var(--gk-border)] py-3.5">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--gk-border-strong)] bg-green-deep text-[11px] font-semibold text-cream">
-            {initials}
+        <Link
+          to={`/profile/${bid.author.id}`}
+          className="flex min-w-0 items-center gap-2.5 transition-opacity hover:opacity-70"
+          onClick={(e) => { e.stopPropagation() }}
+        >
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--gk-border-strong)] bg-green-deep text-[11px] font-semibold text-cream">
+            {bid.author.company_logo
+              ? <img src={bid.author.company_logo} alt={authorName} className="h-full w-full object-cover" />
+              : initials}
           </div>
           <div className="min-w-0">
             <p className="truncate text-[13px] font-medium text-ink">
-              {bid.author.name || '—'}
-              {isMine && (
-                <span className="ml-1.5 font-normal text-[var(--gk-fg-muted)]">· вы</span>
-              )}
+              {authorName}
             </p>
             {dateStr && (
               <p className="font-['JetBrains_Mono',ui-monospace,monospace] text-[11px] text-[var(--gk-fg-muted)]">
@@ -117,17 +154,9 @@ export function BidCard({ bid, isMine, alreadySent, onContact }: TBidCardProps) 
               </p>
             )}
           </div>
-        </div>
+        </Link>
 
-        {isMine ? (
-          <button
-            type="button"
-            disabled
-            className="flex cursor-not-allowed items-center gap-1.5 rounded-[var(--gk-radius)] border border-[var(--gk-border)] px-3.5 py-2 text-[13px] font-semibold text-[var(--gk-fg-muted)] opacity-60"
-          >
-            Моя заявка
-          </button>
-        ) : alreadySent ? (
+        {!hideContact && (alreadySent ? (
           <button
             type="button"
             disabled
@@ -143,7 +172,7 @@ export function BidCard({ bid, isMine, alreadySent, onContact }: TBidCardProps) 
           >
             <SendIcon /> Связаться
           </button>
-        )}
+        ))}
       </div>
     </div>
   )

@@ -544,6 +544,7 @@ export function HomePage() {
     const vMax = filters.qtyMax ? parseNum(filters.qtyMax) : Infinity
 
     let list = allBids.filter((b) => {
+      if (b.author.id === user?.id) { return false }
       if (filters.type !== 'all' && b.type !== filters.type) { return false }
       if (q && !(b.title + ' ' + b.quality + ' ' + b.comment).toLowerCase().includes(q)) { return false }
       if (reg && !b.region.toLowerCase().includes(reg)) { return false }
@@ -573,7 +574,7 @@ export function HomePage() {
     }
 
     return list
-  }, [allBids, filters, sort])
+  }, [allBids, filters, sort, user?.id])
 
   /* pagination — clamp page without a setState-in-effect */
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
@@ -651,7 +652,6 @@ export function HomePage() {
                   <BidCard
                     key={bid.id}
                     bid={bid}
-                    isMine={bid.author.id === user?.id}
                     alreadySent={sentBidIds.has(bid.id)}
                     onContact={(b) => { setCrModalBid(b) }}
                   />

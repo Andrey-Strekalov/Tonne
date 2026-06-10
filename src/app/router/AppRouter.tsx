@@ -6,6 +6,7 @@ import { ComingSoonPage } from '@/app/pages/home/ComingSoonPage'
 import { HomePage } from '@/app/pages/home/HomePage'
 import { MyBidsPage } from '@/app/pages/home/MyBidsPage'
 import { ProfilePage } from '@/app/pages/profile/ProfilePage'
+import { PublicProfilePage } from '@/app/pages/profile/PublicProfilePage'
 import { NotFoundPage } from '@/app/pages/not-found/NotFoundPage'
 import { ProtectedRoute } from './ProtectedRoute'
 import { PublicOnlyRoute } from './PublicOnlyRoute'
@@ -26,6 +27,7 @@ export function AppRouter() {
           <Route path="/counterparties" element={<ComingSoonPage />} />
           <Route path="/about" element={<AboutServicePage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/:userId" element={<PublicProfilePage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

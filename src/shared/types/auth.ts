@@ -36,6 +36,8 @@ export interface TUser {
   id: number
   phone: string
   name: string
+  company_logo?: string | null
+  company_name?: string | null
 }
 
 export interface AuthMeResponse {

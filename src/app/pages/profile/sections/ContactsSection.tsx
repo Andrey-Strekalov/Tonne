@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/app/providers/auth-context'
 import { getContactRequests, markContactRequestRead } from '@/shared/api/contacts'
@@ -22,7 +23,12 @@ const CheckIcon = () => (
 type Direction = 'incoming' | 'outgoing'
 type ReadFilter = 'all' | 'unread' | 'read'
 
-export function ContactsSection() {
+type Props = {
+  initialCrId: number | undefined
+  locationKey: string | undefined
+}
+
+export function ContactsSection({ initialCrId, locationKey }: Props) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
   const [tab, setTab] = useState<Direction>('incoming')
@@ -90,6 +96,43 @@ export function ContactsSection() {
       void queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
   })
+
+  // Auto-open from navigation — computed without setState in effect
+  const [dismissedKey, setDismissedKey] = useState<string | null>(null)
+  const markedReadKey = useRef<string | null>(null)
+
+  const autoSelected = useMemo((): { cr: TContactRequest; bid: TBid | null; direction: Direction } | null => {
+    if (!initialCrId || !locationKey) { return null }
+    if (dismissedKey === locationKey) { return null }
+
+    const inIncoming = (incomingData?.contact_requests ?? []).find((c) => c.id === initialCrId)
+    const inOutgoing = (outgoingData?.contact_requests ?? []).find((c) => c.id === initialCrId)
+    const cr = inIncoming ?? inOutgoing
+    if (!cr) { return null }
+
+    const direction: Direction = inIncoming ? 'incoming' : 'outgoing'
+    const bid = (inIncoming ? myBidMap : outgoingBidMap).get(cr.bid_id) ?? null
+    return { cr, bid, direction }
+  }, [initialCrId, locationKey, dismissedKey, incomingData, outgoingData, myBidMap, outgoingBidMap])
+
+  // Mark as read when auto-modal opens — only calls mutation, no setState
+  const mutateMarkReadRef = useRef(markReadMutation.mutate)
+  useEffect(() => { mutateMarkReadRef.current = markReadMutation.mutate })
+
+  useEffect(() => {
+    if (!autoSelected || !locationKey || markedReadKey.current === locationKey) { return }
+    if (!autoSelected.cr.is_read && autoSelected.direction === 'incoming') {
+      markedReadKey.current = locationKey
+      mutateMarkReadRef.current(autoSelected.cr.id)
+    }
+  }, [autoSelected, locationKey])
+
+  const modalTarget = selected ?? autoSelected
+
+  const handleModalClose = () => {
+    if (!selected && locationKey) { setDismissedKey(locationKey) }
+    setSelected(null)
+  }
 
   const openRequest = (cr: TContactRequest) => {
     const bid = bidMap.get(cr.bid_id) ?? null
@@ -199,12 +242,12 @@ export function ContactsSection() {
         </div>
       )}
 
-      {selected && (
+      {modalTarget && (
         <ContactRequestModal
-          contactRequest={selected.cr}
-          bid={selected.bid}
-          direction={selected.direction}
-          onClose={() => { setSelected(null) }}
+          contactRequest={modalTarget.cr}
+          bid={modalTarget.bid}
+          direction={modalTarget.direction}
+          onClose={handleModalClose}
         />
       )}
     </>
@@ -232,9 +275,19 @@ function ContactRow({ cr, bid, direction, onClick }: {
       <span className={`h-2 w-2 rounded-full justify-self-center ${cr.is_read ? 'bg-transparent' : 'bg-green'}`} />
 
       <div>
-        <p className={`text-sm ${cr.is_read ? 'font-semibold text-ink' : 'font-bold text-ink'}`}>
-          {cr.sender_organization_snapshot || `Пользователь #${cr.sender_id}`}
-        </p>
+        {direction === 'incoming' ? (
+          <Link
+            to={`/profile/${cr.sender_id}`}
+            className={`block text-sm hover:underline ${cr.is_read ? 'font-semibold text-ink' : 'font-bold text-ink'}`}
+            onClick={(e) => { e.stopPropagation() }}
+          >
+            {cr.sender_organization_snapshot || `Пользователь #${cr.sender_id}`}
+          </Link>
+        ) : (
+          <p className={`text-sm ${cr.is_read ? 'font-semibold text-ink' : 'font-bold text-ink'}`}>
+            {cr.sender_organization_snapshot || `Пользователь #${cr.sender_id}`}
+          </p>
+        )}
         <p className="mt-0.5 font-['JetBrains_Mono',ui-monospace,monospace] text-[12px] text-[var(--gk-fg-muted)]">
           {cr.sender_phone_snapshot}
         </p>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useSearchParams, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { MainLayout } from '@/app/layout/MainLayout'
 import { useAuth } from '@/app/providers/auth-context'
@@ -11,11 +11,22 @@ import { ProfileSection } from './sections/ProfileSection'
 import { AdsSection } from './sections/AdsSection'
 import { ContactsSection } from './sections/ContactsSection'
 
-export type ProfileSection = 'profile' | 'ads' | 'contacts'
+export type ProfileSectionId = 'profile' | 'ads' | 'contacts'
 
 export function ProfilePage() {
   const { user } = useAuth()
-  const [section, setSection] = useState<ProfileSection>('profile')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { state, key: locationKey } = useLocation()
+
+  const sectionParam = searchParams.get('section')
+  const section: ProfileSectionId =
+    sectionParam === 'ads' || sectionParam === 'contacts' ? sectionParam : 'profile'
+
+  const crId = (state as { crId?: number } | null)?.crId
+
+  const handleSectionChange = (s: ProfileSectionId) => {
+    setSearchParams(s === 'profile' ? {} : { section: s }, { replace: true })
+  }
 
   const { data: reqData } = useQuery({
     queryKey: ['requisites'],
@@ -42,7 +53,7 @@ export function ProfilePage() {
       <div className="-mx-4 sm:-mx-6 -mt-7 sm:-mt-10 flex min-h-[calc(100vh-57px)]">
         <ProfileSidebar
           section={section}
-          onSectionChange={setSection}
+          onSectionChange={handleSectionChange}
           bidsCount={bidsCount}
           unreadContactsCount={unreadContactsCount}
           companyName={companyName}
@@ -50,7 +61,9 @@ export function ProfilePage() {
         <div className="min-w-0 flex-1 px-6 py-8 lg:px-10">
           {section === 'profile' && <ProfileSection />}
           {section === 'ads' && <AdsSection />}
-          {section === 'contacts' && <ContactsSection />}
+          {section === 'contacts' && (
+            <ContactsSection initialCrId={crId} locationKey={locationKey} />
+          )}
         </div>
       </div>
     </MainLayout>

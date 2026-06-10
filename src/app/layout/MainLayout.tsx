@@ -138,7 +138,12 @@ export function MainLayout({ children }: TMainLayoutProps) {
               {notifOpen && (
                 <NotificationsPanel
                   onClose={() => { setNotifOpen(false) }}
-                  onGoToContacts={() => { void navigate('/profile') }}
+                  onGoToContacts={(crId?: number) => {
+                    void navigate(
+                      '/profile?section=contacts',
+                      crId !== undefined ? { state: { crId } } : {},
+                    )
+                  }}
                 />
               )}
             </div>
