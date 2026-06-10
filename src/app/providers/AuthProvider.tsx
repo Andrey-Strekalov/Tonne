@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from 'react'
 import { AuthContext, type AuthContextValue } from './auth-context'
+import { queryClient } from './queryClient'
 import { getMe } from '@/shared/api'
 import {
   getAccessToken,
@@ -98,6 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = useCallback(async (accessToken: string, refreshToken: string): Promise<TUser> => {
     saveTokens(accessToken, refreshToken)
+    queryClient.clear()
 
     try {
       return await syncSession()
@@ -115,6 +117,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     removeTokens()
     setAuthenticated(false)
     setUser(null)
+    queryClient.clear()
   }, [])
 
   const value = useMemo<AuthContextValue>(
