@@ -326,8 +326,8 @@ function AvatarCropModal({ imgSrc, isPending, onClose, onSave }: {
       className="fixed inset-0 z-[300] flex items-center justify-center px-4 bg-[rgba(14,26,20,.5)] backdrop-blur-[3px]"
       onMouseDown={(e) => { if (e.target === e.currentTarget) { onClose() } }}
     >
-      <div className="w-full max-w-[480px] rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-[var(--gk-paper)] [box-shadow:var(--gk-shadow-lg)]">
-        <div className="flex items-start justify-between gap-3 px-7 pt-6 pb-4">
+      <div className="flex w-full max-w-[480px] max-h-[calc(100vh-2rem)] flex-col rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-[var(--gk-paper)] [box-shadow:var(--gk-shadow-lg)]">
+        <div className="flex shrink-0 items-start justify-between gap-3 px-7 pt-6 pb-4">
           <div>
             <h2 className="text-[20px] font-bold tracking-tight text-ink">Фото профиля</h2>
             <p className="mt-1 text-[13px] text-[var(--gk-fg-muted)]">Выберите область для отображения</p>
@@ -340,17 +340,17 @@ function AvatarCropModal({ imgSrc, isPending, onClose, onSave }: {
             <XIcon />
           </button>
         </div>
-        <div className="flex justify-center px-7 pb-2">
+        <div className="flex min-h-0 justify-center overflow-auto px-7 pb-2">
           <ReactCrop
             crop={crop}
             onChange={(c) => { setCrop(c) }}
             onComplete={(c) => { setCompletedCrop(c) }}
             aspect={1}
           >
-            <img ref={imgRef} src={imgSrc} alt="Кроп аватара" className="max-h-[360px] max-w-full" />
+            <img ref={imgRef} src={imgSrc} alt="Кроп аватара" className="max-h-[60vh] max-w-full" />
           </ReactCrop>
         </div>
-        <div className="flex justify-end gap-2 border-t border-[var(--gk-border)] px-7 py-4">
+        <div className="flex shrink-0 justify-end gap-2 border-t border-[var(--gk-border)] px-7 py-4">
           <Button type="button" variant="outline" onClick={onClose} disabled={isPending}>Отмена</Button>
           <Button type="button" variant="accent" onClick={handleSave} disabled={isPending || !completedCrop}>
             {isPending ? 'Загрузка...' : 'Сохранить'}

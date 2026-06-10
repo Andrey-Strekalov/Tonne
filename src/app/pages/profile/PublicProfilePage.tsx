@@ -100,7 +100,7 @@ export function PublicProfilePage() {
     )
   }
 
-  const displayName = getDisplayName(req?.company_name || profile.first_name)
+  const displayName = getDisplayName(req?.company_name ?? profile.first_name)
   const initials = getInitials(req?.company_name ?? '', profile.first_name)
 
   return (

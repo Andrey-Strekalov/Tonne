@@ -91,8 +91,8 @@ export function CreateBid({ open, onClose }: TCreateBidProps) {
       className="fixed inset-0 z-50 flex items-start justify-center bg-[var(--gk-ink)]/30 px-4 py-6 backdrop-blur-sm sm:items-center sm:px-6"
       onClick={handleClose}
     >
-      <Card className="w-full max-w-xl [box-shadow:var(--gk-shadow-lg)]" onClick={(event) => { event.stopPropagation(); }}>
-        <CardHeader className="space-y-1.5">
+      <Card className="flex w-full max-w-xl max-h-[calc(100vh-3rem)] flex-col [box-shadow:var(--gk-shadow-lg)]" onClick={(event) => { event.stopPropagation(); }}>
+        <CardHeader className="shrink-0 space-y-1.5">
           <CardTitle className="text-ink">Создать заявку</CardTitle>
           <p className="text-sm text-[var(--gk-fg-muted)]">
             Заполните параметры продажи или покупки: укажите культуру, объём,
@@ -100,7 +100,7 @@ export function CreateBid({ open, onClose }: TCreateBidProps) {
           </p>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="min-h-0 overflow-y-auto">
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label className="text-ink">Тип заявки</Label>

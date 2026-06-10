@@ -8,3 +8,7 @@ const getEnv = (key: string): string => {
 }
 
 export const apiBaseUrl = getEnv('VITE_API_BASE_URL')
+
+export const wsBaseUrl = apiBaseUrl
+  .replace(/^https:\/\//, 'wss://')
+  .replace(/^http:\/\//, 'ws://')

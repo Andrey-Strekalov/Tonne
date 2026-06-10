@@ -67,9 +67,9 @@ export function SendContactModal({ bid, alreadySent, onClose, onSent }: Props) {
       className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--gk-ink)]/50 p-6 backdrop-blur-sm"
       onMouseDown={(e) => { if (e.target === e.currentTarget) { onClose() } }}
     >
-      <div className="w-full max-w-[560px] max-h-[calc(100vh-48px)] overflow-y-auto rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-paper [box-shadow:var(--gk-shadow-lg)]">
+      <div className="flex w-full max-w-[560px] max-h-[calc(100vh-3rem)] flex-col rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-paper [box-shadow:var(--gk-shadow-lg)]">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 px-7 pt-6 pb-2">
+        <div className="flex shrink-0 items-start justify-between gap-3 px-7 pt-6 pb-2">
           <div>
             <h2 className="text-[22px] font-bold tracking-tight text-ink">Контактный запрос</h2>
             <p className="mt-1 text-sm text-[var(--gk-fg-muted)]">Автор увидит ваши контакты и комментарий</p>
@@ -82,7 +82,7 @@ export function SendContactModal({ bid, alreadySent, onClose, onSent }: Props) {
           </button>
         </div>
 
-        <div className="space-y-4 px-7 pb-6 pt-4">
+        <div className="min-h-0 space-y-4 overflow-y-auto px-7 pb-6 pt-4">
           {/* Bid preview */}
           <div className="rounded-[var(--gk-radius)] border border-[var(--gk-border)] bg-cream px-4 py-3.5">
             <div className="mb-2.5 flex items-center gap-2.5">
@@ -156,7 +156,7 @@ export function SendContactModal({ bid, alreadySent, onClose, onSent }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2.5 border-t border-[var(--gk-border)] px-7 py-4">
+        <div className="flex shrink-0 justify-end gap-2.5 border-t border-[var(--gk-border)] px-7 py-4">
           <Button variant="outline" onClick={onClose}>Отмена</Button>
           <Button
             variant="accent"

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/app/providers/auth-context'
+import { useNotificationsWS } from '@/app/providers/useNotificationsWS'
 import { NotificationsPanel } from '@/app/pages/profile/components/NotificationsPanel'
 import { getNotifications } from '@/shared/api/notifications'
 import { getProfile } from '@/shared/api/profile'
@@ -42,7 +43,8 @@ type TMainLayoutProps = {
 }
 
 export function MainLayout({ children }: TMainLayoutProps) {
-  const { logout } = useAuth()
+  const { logout, isAuthenticated } = useAuth()
+  useNotificationsWS(isAuthenticated)
   const navigate = useNavigate()
   const [notifOpen, setNotifOpen] = useState(false)
   const [avatarOpen, setAvatarOpen] = useState(false)

@@ -1,2 +1,2 @@
 // Общая конфигурация
-export { apiBaseUrl } from './env'
+export { apiBaseUrl, wsBaseUrl } from './env'
