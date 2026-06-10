@@ -38,8 +38,8 @@ export function ContactRequestModal({ contactRequest: cr, bid, direction, onClos
       className="fixed inset-0 z-[200] flex items-center justify-center bg-[rgba(14,26,20,.5)] p-6 backdrop-blur-[3px]"
       onMouseDown={(e) => { if (e.target === e.currentTarget) { onClose() } }}
     >
-      <div className="w-full max-w-[580px] max-h-[calc(100vh-48px)] overflow-y-auto rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-paper [box-shadow:var(--gk-shadow-lg)]">
-        <div className="flex items-start justify-between gap-3 px-7 pt-6 pb-2">
+      <div className="flex w-full max-w-[580px] max-h-[calc(100vh-3rem)] flex-col rounded-[var(--gk-radius-xl)] border border-[var(--gk-border-strong)] bg-paper [box-shadow:var(--gk-shadow-lg)]">
+        <div className="flex shrink-0 items-start justify-between gap-3 px-7 pt-6 pb-2">
           <div>
             <h2 className="text-[22px] font-bold tracking-tight text-ink">Контактный запрос</h2>
             <p className="mt-1 text-sm text-[var(--gk-fg-muted)]">
@@ -54,7 +54,7 @@ export function ContactRequestModal({ contactRequest: cr, bid, direction, onClos
           </button>
         </div>
 
-        <div className="px-7 pb-6 pt-4 space-y-3">
+        <div className="min-h-0 space-y-3 overflow-y-auto px-7 pb-6 pt-4">
           {/* Bid details */}
           <Section label="Заявка">
             {bid ? (
@@ -101,7 +101,7 @@ export function ContactRequestModal({ contactRequest: cr, bid, direction, onClos
           </Section>
         </div>
 
-        <div className="flex justify-end border-t border-[var(--gk-border)] px-7 py-4">
+        <div className="flex shrink-0 justify-end border-t border-[var(--gk-border)] px-7 py-4">
           <Button variant="outline" onClick={onClose}>Закрыть</Button>
         </div>
       </div>

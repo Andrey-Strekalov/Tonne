@@ -87,8 +87,8 @@ export function NotificationsPanel({ onClose, onGoToContacts }: Props) {
 }
 
 function NotificationItem({ notification: n, onClick }: { notification: TNotification; onClick: () => void }) {
-  const bidTitle = n.payload?.bid_title || '—'
-  const senderName = n.payload?.sender_first_name || 'Пользователь'
+  const bidTitle = n.payload?.bid_title ?? '—'
+  const senderName = n.payload?.sender_first_name ?? 'Пользователь'
 
   return (
     <div

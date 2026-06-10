@@ -585,6 +585,11 @@ export function HomePage() {
 
   const handleFiltersChange = (f: Filters) => { setFilters(f); setPage(1) }
 
+  const handlePageChange = (p: number) => {
+    setPage(p)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const errorMessage = error instanceof Error ? error.message : 'Не удалось загрузить заявки.'
 
   /* invalidate feed after successful contact request (sent from modal) */
@@ -657,7 +662,7 @@ export function HomePage() {
                   />
                 ))}
               </div>
-              <Pagination page={safePage} setPage={setPage} total={totalPages} />
+              <Pagination page={safePage} setPage={handlePageChange} total={totalPages} />
             </>
           )}
         </main>
