@@ -4,7 +4,7 @@ import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/rea
 import { useAuth } from '@/app/providers/auth-context'
 import { getContactRequests, markContactRequestRead } from '@/shared/api/contacts'
 import { getBids, getBidById } from '@/shared/api/bids'
-import { EBidType, type TBid, type TContactRequest } from '@/shared/types'
+import { EBidType, type TBid, type TContactRequest, type TContactRequestsResponse } from '@/shared/types'
 import { cn } from '@/shared/lib'
 import { ContactRequestModal } from '../components/ContactRequestModal'
 import { formatDateTime } from '../profile-utils'
@@ -91,8 +91,28 @@ export function ContactsSection({ initialCrId, locationKey }: Props) {
 
   const markReadMutation = useMutation({
     mutationFn: (id: number) => markContactRequestRead(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['contact-requests'] })
+    onMutate: async (requestId) => {
+      const direction = tab
+      await queryClient.cancelQueries({ queryKey: ['contact-requests', direction] })
+      const previous = queryClient.getQueryData<TContactRequestsResponse>(['contact-requests', direction])
+      queryClient.setQueryData<TContactRequestsResponse>(['contact-requests', direction], (old) => {
+        if (old === undefined) { return old }
+        return {
+          ...old,
+          contact_requests: old.contact_requests.map((r) =>
+            r.id === requestId ? { ...r, is_read: true } : r
+          ),
+        }
+      })
+      return { previous, direction }
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(['contact-requests', context.direction], context.previous)
+      }
+    },
+    onSettled: (_data, _err, _id, context) => {
+      void queryClient.invalidateQueries({ queryKey: ['contact-requests', context?.direction ?? tab] })
       void queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
   })
