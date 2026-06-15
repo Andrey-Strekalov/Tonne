@@ -69,11 +69,62 @@ export function AdsSection() {
 
   const invalidate = () => { void queryClient.invalidateQueries({ queryKey: ['bids'] }) }
 
-  const archiveMut = useMutation({ mutationFn: (id: number) => archiveBid(id), onSuccess: invalidate })
-  const unarchiveMut = useMutation({ mutationFn: (id: number) => unarchiveBid(id), onSuccess: invalidate })
+  const userId = user?.id
+  const myBidsKey = ['bids', 'my-all', userId] as const
+
+  const archiveMut = useMutation({
+    mutationFn: (id: number) => archiveBid(id),
+    onMutate: async (bidId) => {
+      await queryClient.cancelQueries({ queryKey: myBidsKey })
+      const previous = queryClient.getQueryData<TBid[]>(myBidsKey)
+      queryClient.setQueryData<TBid[]>(myBidsKey, (old) =>
+        (old ?? []).map((b) => b.id === bidId ? { ...b, is_archived: true } : b)
+      )
+      return { previous }
+    },
+    onError: (_err, _bidId, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(myBidsKey, context.previous)
+      }
+    },
+    onSettled: () => { void queryClient.invalidateQueries({ queryKey: myBidsKey }) },
+  })
+
+  const unarchiveMut = useMutation({
+    mutationFn: (id: number) => unarchiveBid(id),
+    onMutate: async (bidId) => {
+      await queryClient.cancelQueries({ queryKey: myBidsKey })
+      const previous = queryClient.getQueryData<TBid[]>(myBidsKey)
+      queryClient.setQueryData<TBid[]>(myBidsKey, (old) =>
+        (old ?? []).map((b) => b.id === bidId ? { ...b, is_archived: false } : b)
+      )
+      return { previous }
+    },
+    onError: (_err, _bidId, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(myBidsKey, context.previous)
+      }
+    },
+    onSettled: () => { void queryClient.invalidateQueries({ queryKey: myBidsKey }) },
+  })
+
   const deleteMut = useMutation({
     mutationFn: (id: number) => deleteBid(id),
-    onSuccess: () => { invalidate(); setDeletePending(null) },
+    onMutate: async (bidId) => {
+      await queryClient.cancelQueries({ queryKey: myBidsKey })
+      const previous = queryClient.getQueryData<TBid[]>(myBidsKey)
+      queryClient.setQueryData<TBid[]>(myBidsKey, (old) =>
+        (old ?? []).filter((b) => b.id !== bidId)
+      )
+      setDeletePending(null)
+      return { previous }
+    },
+    onError: (_err, _bidId, context) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(myBidsKey, context.previous)
+      }
+    },
+    onSettled: () => { void queryClient.invalidateQueries({ queryKey: myBidsKey }) },
   })
 
   const handleFilterChange = (f: BidFilter) => { setFilter(f); setPage(1) }
