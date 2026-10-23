@@ -28,8 +28,17 @@ export interface RefreshTokenRequest {
 export interface RefreshTokenResponse {
   success?: boolean
   access_token: string
-  refresh_token?: string
+  refresh_token: string
   message?: string
+}
+
+export interface LogoutRequest {
+  refresh: string
+}
+
+export interface LogoutResponse {
+  success: boolean
+  detail?: string
 }
 
 export interface TUser {

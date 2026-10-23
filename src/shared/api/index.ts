@@ -1,4 +1,4 @@
-export { requestCode, confirmCode, refreshTokens, getMe } from './auth'
+export { requestCode, confirmCode, refreshTokens, getMe, logoutUser } from './auth'
 export { createBid, getBids, getBidById, updateBid, archiveBid, unarchiveBid, deleteBid } from './bids'
 export { getProfile, updateProfile, deleteProfile } from './profile'
 export { getRequisites, updateRequisites } from './requisites'

@@ -8,6 +8,8 @@ import type {
   RefreshTokenRequest,
   RefreshTokenResponse,
   AuthMeResponse,
+  LogoutRequest,
+  LogoutResponse,
 } from '@/shared/types'
 
 export function requestCode(payload: RequestCodeRequest): Promise<RequestCodeResponse> {
@@ -31,5 +33,12 @@ export function refreshTokens(payload: RefreshTokenRequest): Promise<RefreshToke
 export function getMe(): Promise<AuthMeResponse> {
   return request<AuthMeResponse>('/api/v1/auth/me/', {
     auth: true,
+  })
+}
+
+export function logoutUser(payload: LogoutRequest): Promise<LogoutResponse> {
+  return request<LogoutResponse>('/api/v1/auth/logout/', {
+    method: 'POST',
+    body: payload,
   })
 }
