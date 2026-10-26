@@ -35,7 +35,7 @@ async function performTokenRefresh(): Promise<string | null> {
       return null
     }
 
-    setTokens(data.access_token, data.refresh_token ?? refreshToken)
+    setTokens(data.access_token, data.refresh_token)
     return data.access_token
   } catch {
     clearTokens()

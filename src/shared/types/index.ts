@@ -7,6 +7,8 @@ export type {
   ConfirmCodeResponse,
   RefreshTokenRequest,
   RefreshTokenResponse,
+  LogoutRequest,
+  LogoutResponse,
 } from './auth'
 export { EBidType } from './bid'
 export type {

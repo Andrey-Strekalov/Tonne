@@ -7,7 +7,7 @@ import {
 } from 'react'
 import { AuthContext, type AuthContextValue } from './auth-context'
 import { queryClient } from './queryClient'
-import { getMe } from '@/shared/api'
+import { getMe, logoutUser } from '@/shared/api'
 import {
   getAccessToken,
   getRefreshToken,
@@ -112,12 +112,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [syncSession])
 
   const logout = useCallback(() => {
+    const refreshToken = getRefreshToken()
+
     currentUserRequest = null
     currentUserRequestKey = null
     removeTokens()
     setAuthenticated(false)
     setUser(null)
     queryClient.clear()
+
+    if (refreshToken) {
+      void logoutUser({ refresh: refreshToken })
+    }
   }, [])
 
   const value = useMemo<AuthContextValue>(
